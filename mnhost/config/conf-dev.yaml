@@ -1,0 +1,71 @@
+Env: dev
+ServiceName:
+  consignment: Vircle.Mnhost.consignment
+  user: Vircle.Mnhost.user
+  vessel: Vircle.Mnhost.vessel
+  log: Vircle.Mnhost.log
+  api: Vircle.Mnhost.api
+  vps: Vircle.Mnhost.vps
+  nodemsg: Vircle.Mnhost.nodemsg
+Version:
+  consignment: latest
+  user: latest
+  vessel: latest
+  log: latest
+  api: latest
+  vps: latest
+  nodemsg: latest
+Tracing:
+  consignment: 127.0.0.1:6831
+  user: 127.0.0.1:6831
+  vessel: 127.0.0.1:6831
+  log: 127.0.0.1:6831
+  vps: 127.0.0.1:6831
+  nodemsg: 127.0.0.1:6831
+DB:
+  consignment:
+    DriverName: mongodb
+    Host: 127.0.0.1
+    Port: 27017
+  user:
+    DriverName: mongodb
+    Host: 127.0.0.1
+    Port: 27017
+  vessel:
+    DriverName: mongodb
+    Host: 127.0.0.1
+    Port: 27017
+BrokerTopic:
+  log: Vircle.Mnhost.log
+BrokerAddrs:
+  default:
+    - 127.0.0.1:9092
+  consignment:
+    - 127.0.0.1:9092
+  user:
+    - 127.0.0.1:9092
+  vessel:
+    - 127.0.0.1:9092
+  log:
+    - 127.0.0.1:9092
+  vps:
+    - 127.0.0.1:9092
+  nodemsg:
+    - 127.0.0.1:9092    
+RegistryAddrs:
+  default:
+    - 127.0.0.1:8500
+  consignment:
+    - 127.0.0.1:8500
+  user:
+    - 127.0.0.1:8500
+  vessel:
+    - 127.0.0.1:8500
+  log:
+    - 127.0.0.1:8500
+  vps:
+    - 127.0.0.1:8500
+  nodemsg:
+    - 127.0.0.1:8500
+  api:
+    - 127.0.0.1:8500

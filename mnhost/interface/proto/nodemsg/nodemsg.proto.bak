@@ -1,0 +1,38 @@
+syntax = "proto3";
+
+package go.srv.nodemsg;
+
+service NodeMsg {
+	rpc Call(Request) returns (Response) {}
+}
+
+type NodeMsg struct {
+	c           client.Client
+	serviceName string
+}
+
+/*
+message NodeRxMsg {
+	int64 id = 1;
+}
+
+message NodeTxMsg {
+    string origin = 1;
+    string method = 2;
+    string errno = 3;
+    string errmsg = 4;
+    string msg = 5;
+}
+*/
+
+message Request {
+	string type = 1;
+	string validperiod = 2;
+}
+
+message Response {
+	string errno = 1;
+	string errmsg = 2;
+	bytes mix = 3;	
+}
+

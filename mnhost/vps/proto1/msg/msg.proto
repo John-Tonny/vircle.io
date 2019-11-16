@@ -1,0 +1,7 @@
+syntax = "proto3";
+
+package msg;
+
+message msg {
+    string id = 1;
+}

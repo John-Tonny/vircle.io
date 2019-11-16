@@ -1,0 +1,183 @@
+package main
+
+import (
+	"context"
+	"fmt"
+	"time"
+
+	"github.com/micro/go-micro"
+	"github.com/micro/go-micro/util/log"
+
+	//"github.com/micro/go-plugins/broker/redis"
+
+	"vircle.io/mnhost/vps/handler"
+	"vircle.io/mnhost/vps/subscriber"
+
+	aaa "vircle.io/mnhost/vps/handler"
+	vps "vircle.io/mnhost/vps/proto/vps"
+
+	"github.com/micro/go-micro/broker"
+	"vircle.io/mnhost/go-plugins/broker/kafka"
+
+	//"github.com/micro/go-micro/registry"
+	//"github.com/micro/go-plugins/registry/consul"
+
+	"vircle.io/mnhost/common"
+)
+
+var (
+	topic = "mytest"
+)
+
+func main() {
+	/*b := kafka.NewBroker(
+		broker.Addrs("127.0.0.1:9092"),
+	)
+
+		b := nsq.NewBroker(
+			broker.Addrs("redis://localhost:6379/"),
+		)
+
+	b.Init()
+	b.Connect()*/
+	/*
+		msg := &broker.Message{
+			Header: map[string]string{
+				"id": fmt.Sprintf("%d", 10),
+			},
+			Body: []byte(fmt.Sprintf("%d: %s", 10, time.Now().String())),
+		}
+		err := b.Publish("topic string test", msg)
+		if err != nil {
+			fmt.Println(err)
+		}
+		fmt.Println("publish")
+		log.Info(b)*/
+
+	// New Service
+	service := micro.NewService(
+		micro.Name("go.micro.srv.vps"),
+		micro.Version("latest"),
+		micro.Broker(kafka.NewBroker(func(o *broker.Options) {
+			o.Addrs = []string{"127.0.0.1:9092"}
+		})),
+		//micro.Broker(b),
+	)
+
+	//aaa.WriteConf("/tmp/vircle.conf", 8)
+	//aaa.NewNode("", "192.168.246.180", "htjonny")
+
+	//vpsInfo, err := aaa.NewVps("", "", "")
+	//log.Info(vpsInfo)
+	//log.Info(err)
+	aaa.Testuser("eee", "eee", "13510019994")
+	/*aaa.Testorder("13510019994")
+	aaa.Testuser("fff", "fff", "13510019993")
+	aaa.Testorder("13510019993")
+	aaa.TestProduct()
+	aaa.TestCoin()*/
+	//aaa.Testnode("2")
+
+	//aaa.NewNode(5, "vircle", "18.222.181.64", "vpub$999000")
+
+	// Initialise service
+	service.Init()
+
+	if err := broker.Connect(); err != nil {
+		fmt.Println(err.Error())
+	}
+	fmt.Println("start service")
+
+	// Register Handler
+	vps.RegisterVpsHandler(service.Server(), new(handler.Vps))
+
+	// Register Struct as Subscriber
+	micro.RegisterSubscriber("go.micro.srv.vpsa", service.Server(), new(subscriber.Vps))
+
+	// Register Function as Subscriber
+	micro.RegisterSubscriber("go.micro.srv.vps1a", service.Server(), subscriber.Handler)
+
+	// Register Function as Subscriber
+	micro.RegisterSubscriber("go.micro.srv.vps.newnode", service.Server(), subscriber.NewNode)
+
+	// Register Function as Subscriber
+	micro.RegisterSubscriber("go.micro.srv.vps.delnode", service.Server(), subscriber.DelNode)
+
+	/*
+		_, err = b.Subscribe("topic strint test", func(p broker.Event) error {
+			fmt.Println("[sub] received message:", string(p.Message().Body), "header", p.Message().Header)
+			return nil
+		})
+		if err != nil {
+			fmt.Println("error")
+			fmt.Println(err)
+		}*/
+
+	p := micro.NewPublisher("topic.examplea", service.Client())
+	pub1(p)
+	fmt.Println("pub success")
+	sendMsg()
+	//go sub()
+	// Run service
+	if err := service.Run(); err != nil {
+		log.Fatal(err)
+	}
+}
+
+func sendMsg() {
+	i := 99
+	msg := &broker.Message{
+		Header: map[string]string{
+			"id": fmt.Sprintf("%d", i),
+		},
+		Body: []byte(fmt.Sprintf("%d: %s ---%s", i, time.Now().String(), "lht")),
+	}
+	if err := broker.Publish(topic, msg); err != nil {
+		fmt.Println("[pub] failed: %v", err)
+	} else {
+		fmt.Println("[pub] pubbed message:", string(msg.Body))
+	}
+	i++
+}
+func pub() {
+	tick := time.NewTicker(time.Second)
+	i := 0
+	for _ = range tick.C {
+		msg := &broker.Message{
+			Header: map[string]string{
+				"id": fmt.Sprintf("%d", i),
+			},
+			Body: []byte(fmt.Sprintf("%d: %s ---%s", i, time.Now().String(), "lht")),
+		}
+		if err := broker.Publish(topic, msg); err != nil {
+			fmt.Println("[pub] failed: %v", err)
+		} else {
+			fmt.Println("[pub] pubbed message:", string(msg.Body))
+		}
+		i++
+	}
+}
+
+func sub() {
+	_, err := broker.Subscribe(topic, func(p broker.Event) error {
+		fmt.Println("[sub] received message:", string(p.Message().Body), "header", p.Message().Header)
+		return nil
+	})
+	if err != nil {
+		fmt.Println(err)
+	}
+}
+
+// publishes a message
+func pub1(p micro.Publisher) {
+	msg := &vps.Message{
+		Say: "This is an async message",
+	}
+
+	if err := p.Publish(context.TODO(), msg); err != nil {
+		fmt.Println("pub err: ", err)
+		return
+	}
+
+	fmt.Printf("Published: %v\n", msg)
+}
